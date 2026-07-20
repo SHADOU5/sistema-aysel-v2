@@ -19,13 +19,21 @@ dotenv.config();
 const app = express();
 
 app.use(cors({
-  origin: [
-    'http://localhost:3000',
-    'https://sistema-aysel.vercel.app',
-    /\.vercel\.app$/
-  ],
+  origin: function (origin, callback) {
+    const allowed = [
+      'http://localhost:3000',
+      'https://sistema-aysel.vercel.app',
+      'https://sistema-aysel-v2-6gm81ljb5-aysel2.vercel.app'
+    ];
+    if (!origin || allowed.includes(origin) || origin.endsWith('.vercel.app')) {
+      callback(null, true);
+    } else {
+      callback(new Error('No permitido por CORS'));
+    }
+  },
   credentials: true,
 }));
+
 app.use(express.json());
 app.use(cookieParser());
 
@@ -42,9 +50,7 @@ app.use('/api/promociones', promocionesRoutes);
 app.use('/api/cuentas', cuentasRoutes);
 
 app.get('/api/health', (req, res) => {
-  res.json({ message: 'BACKEND FUNCIONADO ' });
+  res.json({ message: 'BACKEND FUNCIONANDO' });
 });
-
-console.log('Rutas cargadas: promociones =', typeof promocionesRoutes);
 
 export default app;
